@@ -3,7 +3,9 @@ services:
     build: requirements/nginx/.
     container_name: nginx
     ports:
-      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
     restart: always
   wordpress:
     build: requirements/wordpress/.

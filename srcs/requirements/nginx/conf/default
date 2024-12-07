@@ -16,16 +16,33 @@
 # Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
 ##
 
-# Default server configuration
-#
+# Permanent Redirect all HTTP traffic to HTTPS
 server {
 	listen 80 default_server;
 	listen [::]:80 default_server;
 
+	server_name ${DOMAIN_NAME};
+
+	# Redirect all HTTP requests to HTTPS
+	return 301 https://$host$request_uri;
+}
+
+# Default server configuration
+#
+server {
+	# listen 80 default_server;
+	# listen [::]:80 default_server;
+
 	# SSL configuration
 	#
-	# listen 443 ssl default_server;
-	# listen [::]:443 ssl default_server;
+	listen 443 ssl default_server;
+	listen [::]:443 ssl default_server;
+
+	ssl_certificate /etc/nginx/ssl/nginx.crt;
+	ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+	ssl_protocols TLSv1.2 TLSv1.3;
+	ssl_prefer_server_ciphers on;
 	#
 	# Note: You should disable gzip for SSL traffic.
 	# See: https://bugs.debian.org/773332
@@ -41,9 +58,9 @@ server {
 	root /var/www/html;
 
 	# Add index.php to the list if you are using PHP
-	index index.html index.htm index.nginx-debian.html;
+	index index.php index.html index.htm index.nginx-debian.html;
 
-	server_name _;
+	server_name ${DOMAIN_NAME};
 
 	location / {
 		# First attempt to serve request as file, then
@@ -53,14 +70,14 @@ server {
 
 	# pass PHP scripts to FastCGI server
 	#
-	#location ~ \.php$ {
-	#	include snippets/fastcgi-php.conf;
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
 	#
 	#	# With php-fpm (or other unix sockets):
 	#	fastcgi_pass unix:/run/php/php7.4-fpm.sock;
 	#	# With php-cgi (or other tcp sockets):
-	#	fastcgi_pass 127.0.0.1:9000;
-	#}
+		fastcgi_pass wp-php:9000;
+	}
 
 	# deny access to .htaccess files, if Apache's document root
 	# concurs with nginx's one

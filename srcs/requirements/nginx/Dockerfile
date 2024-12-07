@@ -1,15 +1,17 @@
 FROM debian:stable
 
-RUN apt update && \
-	apt install -y nginx && \
-	apt clean
+RUN apt update && apt install -y nginx openssl && apt clean
 
-# Copy custom NGINX config
-COPY ./conf/nginx.conf /etc/nginx/nginx.conf
+# Generate SSL Certificate
+RUN mkdir -p /etc/nginx/ssl && \
+	openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+	-keyout /etc/nginx/ssl/nginx.key \
+	-out /etc/nginx/ssl/nginx.crt \
+	-subj "/C=DE/ST=Baden-Württemberg/L=Heilbronn/O=42/OU=Student/CN=${DOMAIN_NAME}"
 
-# Copy index.html into the web root
-COPY ./index.html /var/www/html/index.html
+EXPOSE 443
 
-EXPOSE 80
+# Copy NGINX default config
+COPY /conf/default /etc/nginx/sites-available/default
 
 CMD ["nginx", "-g", "daemon off;"]
