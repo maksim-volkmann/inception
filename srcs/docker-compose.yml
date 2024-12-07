@@ -5,3 +5,6 @@ services:
     ports:
       - "80:80"
     restart: always
+  wordpress:
+    build: requirements/wordpress/.
+    container_name: wp-php
