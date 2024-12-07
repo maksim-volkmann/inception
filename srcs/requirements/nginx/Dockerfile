@@ -12,6 +12,6 @@ RUN mkdir -p /etc/nginx/ssl && \
 EXPOSE 443
 
 # Copy NGINX default config
-COPY /conf/default /etc/nginx/sites-available/default
+COPY ./conf/default /etc/nginx/sites-available/default
 
 CMD ["nginx", "-g", "daemon off;"]
