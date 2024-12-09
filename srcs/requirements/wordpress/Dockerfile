@@ -6,7 +6,7 @@ RUN apt update && apt install -y \
 	php-mysqli \
 	curl
 
-COPY www.conf /etc/php/8.2/fpm/pool.d/.
-COPY script.sh .
-RUN chmod +x script.sh
-CMD ["./script.sh"]
+COPY conf/www.conf /etc/php/8.2/fpm/pool.d/.
+COPY /tools/wordpress.sh .
+RUN chmod +x wordpress.sh
+CMD ["./wordpress.sh"]
