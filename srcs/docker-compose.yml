@@ -46,21 +46,22 @@ services:
       - db_root_pass
     networks:
       - inception_network
-
-
-# volumes:
-#   mariadb_data:
-#     driver: local
-#     driver_opts:
-#       type: none
-#       device: /home/mvolkman/data/db_data
-#       o: bind
-  # wordpress_data:
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: /home/mvolkman/data/wordpress
-  #     o: bind
+  ftp:
+    build: requirements/bonus/ftp/.
+    container_name: ftp
+    depends_on:
+      - wordpress
+    secrets:
+      - ftp_user
+      - ftp_pass
+    volumes:
+      - /home/mvolkman/data/web:/var/www/html
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    networks:
+      - inception_network
+    restart: always
 
 networks:
   inception_network:
