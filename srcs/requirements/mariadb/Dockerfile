@@ -1,10 +1,17 @@
 FROM debian:stable
 
-RUN apt update && apt install -y mariadb-server && apt clean
+# Install necessary packages
+RUN apt-get update && apt-get install -y mariadb-server && apt-get clean
 
-COPY 50-server.cnf /etc/mysql/mariadb.conf.d/.
-COPY init.sql /etc/mysql/init.sql
+# Copy custom config file
+COPY 50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
-RUN mkdir /run/mysqld
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-CMD ["mysqld_safe"]
+# Prepare run directory and set ownership
+RUN mkdir -p /run/mysqld && chown mysql:mysql /run/mysqld
+
+EXPOSE 3306
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
