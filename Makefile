@@ -12,5 +12,5 @@ down:
 	cd srcs && docker compose down
 
 fclean:
-	sudo rm -rf /home/mvolkman/data
 	cd srcs && docker compose down
+	sudo rm -rf /home/mvolkman/data
