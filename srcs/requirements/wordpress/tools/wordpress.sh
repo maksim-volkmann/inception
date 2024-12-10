@@ -46,20 +46,23 @@ chmod -R 775 /var/www/html/wp-content
 ## redis ##
 
 # Add Redis configuration
-# ./wp-cli.phar config set WP_REDIS_HOST redis --allow-root
-# ./wp-cli.phar config set WP_REDIS_PORT 6379 --raw --allow-root
-# ./wp-cli.phar config set WP_CACHE_KEY_SALT $DOMAIN_NAME --allow-root
-# ./wp-cli.phar config set WP_REDIS_CLIENT phpredis --allow-root
+./wp-cli.phar config set WP_REDIS_HOST redis --allow-root
+./wp-cli.phar config set WP_REDIS_PORT 6379 --raw --allow-root
+./wp-cli.phar config set WP_CACHE_KEY_SALT $DOMAIN_NAME --allow-root
+./wp-cli.phar config set WP_REDIS_CLIENT phpredis --allow-root
 
 # Install and activate Redis plugin
-# ./wp-cli.phar plugin install redis-cache --activate --allow-root
-# ./wp-cli.phar plugin update --all --allow-root
+./wp-cli.phar plugin install redis-cache --activate --allow-root
+./wp-cli.phar plugin update --all --allow-root
 
 # Enable Redis
-# ./wp-cli.phar redis enable --allow-root
+./wp-cli.phar redis enable --allow-root
 
 # Add filter to allow Redis Object Cache modification
 # echo "define('DISALLOW_FILE_MODS', false);" >> wp-config.php
+
+./wp-cli.phar config set FS_METHOD direct --allow-root
+
 
 # Ensure the filter is applied
 mkdir -p /var/www/html/wp-content/mu-plugins

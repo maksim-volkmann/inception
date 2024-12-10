@@ -62,16 +62,16 @@ services:
     networks:
       - inception_network
     restart: always
-  # redis:
-  #   build: requirements/bonus/redis/.
-  #   container_name: redis
-  #   depends_on:
-  #     - wordpress
-  #   ports:
-  #     - "6379:6379"
-  #   networks:
-  #     - inception_network
-  #   restart: always
+  redis:
+    build: requirements/bonus/redis/.
+    container_name: redis
+    depends_on:
+      - wordpress
+    ports:
+      - "6379:6379"
+    networks:
+      - inception_network
+    restart: always
 
 networks:
   inception_network:

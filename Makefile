@@ -11,6 +11,11 @@ up:
 down:
 	cd srcs && docker compose down
 
-fclean:
+re: fclean build up
+
+clean:
 	cd srcs && docker compose down
+
+fclean:
+	clean
 	sudo rm -rf /home/mvolkman/data
