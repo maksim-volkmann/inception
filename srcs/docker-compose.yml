@@ -9,6 +9,7 @@ services:
       - "443:443"
     volumes:
       - /home/mvolkman/data/web:/var/www/html
+      - /home/mvolkman/data/cats:/var/www/cats
     networks:
       - inception_network
     restart: always
@@ -72,6 +73,33 @@ services:
     networks:
       - inception_network
     restart: always
+  adminer:
+    build: ./requirements/bonus/adminer/.
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - inception_network
+  static_cats:
+    build: ./requirements/bonus/static/.
+    container_name: static_cats
+    ports:
+      - "8443:443"
+    networks:
+      - inception_network
+  cadvisor:
+    build:
+      context: ./requirements/bonus/cadvisor
+    container_name: cadvisor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8081:8080"
+    restart: always
+    networks:
+      - inception_network
+
 
 networks:
   inception_network:

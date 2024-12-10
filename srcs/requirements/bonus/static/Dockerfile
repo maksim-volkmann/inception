@@ -11,6 +11,9 @@ RUN mkdir -p /etc/nginx/ssl && \
 
 EXPOSE 443
 
+# Copy a basic HTML file to serve as the default page
+COPY index.html /var/www/html/index.html
+
 # Copy NGINX default config
 COPY ./conf/default /etc/nginx/sites-available/default
 

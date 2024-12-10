@@ -17,5 +17,11 @@ clean:
 	cd srcs && docker compose down
 
 fclean:
-	clean
-	sudo rm -rf /home/mvolkman/data
+	$(MAKE) clean
+	if [ -d "/home/$(USER)/data" ]; then \
+		sudo rm -rf /home/$(USER)/data; \
+		echo "Removed /home/$(USER)/data"; \
+	else \
+		echo "Directory /home/$(USER)/data is empty"; \
+	fi
+
