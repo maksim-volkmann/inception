@@ -17,10 +17,9 @@ DOMAIN_NAME=${DOMAIN_NAME}
 
 # Check if WordPress is already installed (if wp-config.php exists)
 if [ ! -f "wp-config.php" ]; then
-    echo "WordPress not found. Installing...aa"
+    echo "WordPress not found. Installing..."
     ./wp-cli.phar core download --allow-root
     ./wp-cli.phar config create --dbname=${DB_NAME} --dbuser=${DB_USER} --dbpass=${DB_PASS} --dbhost=mariadb --allow-root
-	# ./wp-cli.phar config create --dbname=wordpress --dbuser=mvolkman --dbpass=askrabas1122E# --dbhost=mariadb --allow-root
     ./wp-cli.phar core install --url="https://$DOMAIN_NAME" --title=inception --admin_user=${ADMIN_USER} --admin_password=${ADMIN_PASS} --admin_email=${ADMIN_EMAIL} --allow-root
     ./wp-cli.phar option update siteurl "https://$DOMAIN_NAME" --allow-root
     ./wp-cli.phar option update home "https://$DOMAIN_NAME" --allow-root
@@ -35,8 +34,8 @@ else
 fi
 
 # Ensure wp-content directory is writable
-# chown -R www-data:www-data /var/www/html/wp-content
-# chmod -R 775 /var/www/html/wp-content
+chown -R www-data:www-data /var/www/html/wp-content
+chmod -R 775 /var/www/html/wp-content
 
 # Add Redis-specific configurations to wp-config.php
 # if ! grep -q "WP_REDIS_DISABLE_DROPIN_CHECK" wp-config.php; then
@@ -46,18 +45,18 @@ fi
 
 ## redis ##
 
-# Add Redis configuration 1
-# ./wp-cli.phar config set WP_REDIS_HOST redis --allow-root
-# ./wp-cli.phar config set WP_REDIS_PORT 6379 --raw --allow-root
-# ./wp-cli.phar config set WP_CACHE_KEY_SALT $DOMAIN_NAME --allow-root
-# ./wp-cli.phar config set WP_REDIS_CLIENT phpredis --allow-root
+# Add Redis configuration
+./wp-cli.phar config set WP_REDIS_HOST redis --allow-root
+./wp-cli.phar config set WP_REDIS_PORT 6379 --raw --allow-root
+./wp-cli.phar config set WP_CACHE_KEY_SALT $DOMAIN_NAME --allow-root
+./wp-cli.phar config set WP_REDIS_CLIENT phpredis --allow-root
 
-# Install and activate Redis plugin 2
-# ./wp-cli.phar plugin install redis-cache --activate --allow-root
-# ./wp-cli.phar plugin update --all --allow-root
+# Install and activate Redis plugin
+./wp-cli.phar plugin install redis-cache --activate --allow-root
+./wp-cli.phar plugin update --all --allow-root
 
-# Enable Redis 3
-# ./wp-cli.phar redis enable --allow-root
+# Enable Redis
+./wp-cli.phar redis enable --allow-root
 
 # Add filter to allow Redis Object Cache modification
 # echo "define('DISALLOW_FILE_MODS', false);" >> wp-config.php
@@ -65,10 +64,10 @@ fi
 ./wp-cli.phar config set FS_METHOD direct --allow-root
 
 
-# Ensure the filter is applied 4
-# mkdir -p /var/www/html/wp-content/mu-plugins
-# chown -R www-data:www-data /var/www/html/wp-content/mu-plugins
-# chmod -R 775 /var/www/html/wp-content/mu-plugins
+# Ensure the filter is applied
+mkdir -p /var/www/html/wp-content/mu-plugins
+chown -R www-data:www-data /var/www/html/wp-content/mu-plugins
+chmod -R 775 /var/www/html/wp-content/mu-plugins
 
 ###  end of redis part  ###
 

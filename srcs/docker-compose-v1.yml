@@ -18,8 +18,6 @@ services:
   wordpress:
     build: requirements/wordpress/.
     container_name: wp-php
-    depends_on:
-      - mariadb
     volumes:
       - wp-data:/var/www/html
     networks:
@@ -61,53 +59,49 @@ services:
       - wp-data:/var/www/html
     ports:
       - "21:21"
-      # - "21100-21110:21100-21110"
-      - "40000-40010:40000-40010"
+      - "21100-21110:21100-21110"
     networks:
       - inception_network
     restart: always
-  # redis:
-  #   build: requirements/bonus/redis/.
-  #   container_name: redis
-  #   depends_on:
-  #     - wordpress
-  #   ports:
-  #     - "6379:6379"
-  #   networks:
-  #     - inception_network
-  #   restart: always
-  # adminer:
-  #   build: ./requirements/bonus/adminer/.
-  #   container_name: adminer
-  #   ports:
-  #     - "8080:8080"
-  #   restart: always
-  #   networks:
-  #     - inception_network
-  # static_cats:
-  #   build: ./requirements/bonus/static/.
-  #   container_name: static_cats
-  #   ports:
-  #     - "8443:443"
-  #   networks:
-  #     - inception_network
-  # cadvisor:
-  #   build:
-  #     context: ./requirements/bonus/cadvisor
-  #   container_name: cadvisor
-  #   volumes:
-  #     - /:/rootfs:ro
-  #     - /var/run:/var/run:rw
-  #     - /sys:/sys:ro
-  #     - /var/lib/docker/:/var/lib/docker:ro
-  #     - /dev/disk/:/dev/disk:ro
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   ports:
-  #     - "8081:8080"  # Map container's 8080 to host's 8081
-  #   restart: always
-  #   networks:
-  #     - inception_network
+  redis:
+    build: requirements/bonus/redis/.
+    container_name: redis
+    depends_on:
+      - wordpress
+    ports:
+      - "6379:6379"
+    networks:
+      - inception_network
+    restart: always
+  adminer:
+    build: ./requirements/bonus/adminer/.
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - inception_network
+  static_cats:
+    build: ./requirements/bonus/static/.
+    container_name: static_cats
+    ports:
+      - "8443:443"
+    networks:
+      - inception_network
+  cadvisor:
+    build:
+      context: ./requirements/bonus/cadvisor
+    container_name: cadvisor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8081:8080"
+    restart: always
+    networks:
+      - inception_network
 
+networks:
+  inception_network:
 
 volumes:
   db-data:
@@ -125,9 +119,6 @@ volumes:
       type: 'none'
       o: 'bind'
       device: /home/mvolkman/data/wp
-
-networks:
-  inception_network:
 
 secrets:
   db_name:

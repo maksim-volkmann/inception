@@ -1,51 +1,49 @@
 #!/bin/bash
 set -e
 
-# Ensure correct ownership for /var/lib/mysql inside the container
-chown -R mysql:mysql /var/lib/mysql
+# Prepare the runtime directory for MariaDB
+mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 
-# SECRETS
+# SECRETS (if needed, adjust these as necessary)
 DB_NAME=$(cat /run/secrets/db_name)
 DB_USER=$(cat /run/secrets/db_user)
 DB_PASS=$(cat /run/secrets/db_pass)
-DB_ROOT_PASS=$(cat /run/secrets/db_root_pass)
+DB_ROOT_PASS=$(cat /run/secrets/db_root_pass)  # Assuming root password is stored as a secret
 
-# Check if database directory already initialized
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-	echo "Initializing database..."
-	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
+echo "DB_NAME=${DB_NAME}, DB_USER=${DB_USER}, DB_PASS=${DB_PASS}, DB_ROOT_PASS=${DB_ROOT_PASS}"
 
-	# Start MariaDB temporarily without networking for setup
-	mysqld --user=mysql --skip-networking &
-	pid=$!
+# Start MariaDB in the background
+mysqld --user=mysql --skip-networking &
+pid=$!
 
-	echo "Waiting for MariaDB to start..."
-	while ! mysqladmin ping --silent; do
-		sleep 1
-	done
+# Wait for MariaDB to start
+echo "Waiting for MariaDB to start..."
+while ! mysqladmin ping --silent; do
+    sleep 1
+done
 
-	echo "Setting up MariaDB..."
+echo "MariaDB started. Checking if database '${DB_NAME}' exists..."
 
-	mysql -u root <<EOF
-	-- Create database if not exists
-	CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+# Check if the database exists and use the root password
+if mysql -u root -p${DB_ROOT_PASS} -e "USE ${DB_NAME}"; then
+    echo "Database '${DB_NAME}' already exists. Skipping initialization."
+else
+    echo "Database '${DB_NAME}' does not exist. Running initialization..."
 
-	-- Create user if not exists and grant privileges
-	CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
-	GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
-
-	-- Alter root user to use mysql_native_password
-	ALTER USER 'root'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('${DB_ROOT_PASS}');
-
-	FLUSH PRIVILEGES;
+    # Create the database and user, and grant privileges using the root password
+    mysql -u root -p${DB_ROOT_PASS} <<EOF
+CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
+ALTER USER 'root'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('${DB_ROOT_PASS}');
+FLUSH PRIVILEGES;
 EOF
 
-	echo "Shutting down temporary MariaDB instance..."
-	mysqladmin -u root -p${DB_ROOT_PASS} shutdown
-
-	echo "Restarting MariaDB in normal mode..."
-	exec mysqld --user=mysql --console
-else
-	echo "Database already initialized. Starting normally..."
-	exec mysqld --user=mysql --console
+    echo "Database '${DB_NAME}' and user '${DB_USER}' created successfully."
 fi
+
+# Stop the temporary MariaDB instance
+mysqladmin -u root -p${DB_ROOT_PASS} shutdown
+
+# Start MariaDB in foreground (to keep container running)
+exec mysqld --user=mysql --console
