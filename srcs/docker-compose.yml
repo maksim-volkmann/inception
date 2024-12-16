@@ -1,4 +1,18 @@
 services:
+  mariadb:
+    build: requirements/mariadb/.
+    container_name: mariadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    secrets:
+      - db_name
+      - db_user
+      - db_pass
+      - db_root_pass
+    networks:
+      - inception_network
   nginx:
     build: requirements/nginx/.
     container_name: nginx
@@ -9,12 +23,11 @@ services:
       - "443:443"
     volumes:
       - wp-data:/var/www/html
-      # - /home/mvolkman/data/cats:/var/www/cats
     networks:
       - inception_network
     restart: always
     environment:
-      - DOMAIN_NAME=${DOMAIN_NAME} # Pass DOMAIN_NAME to the container
+      - DOMAIN_NAME=${DOMAIN_NAME}
   wordpress:
     build: requirements/wordpress/.
     container_name: wp-php
@@ -32,23 +45,13 @@ services:
       - admin_user
       - admin_pass
       - admin_email
+      - regular_user
+      - regular_pass
+      - regular_email
     environment:
-      - DOMAIN_NAME=${DOMAIN_NAME}  # Reference the variable from .env
+      - DOMAIN_NAME=${DOMAIN_NAME}
     restart: always
-  mariadb:
-    build: requirements/mariadb/.
-    container_name: mariadb
-    ports:
-      - "3306:3306"
-    volumes:
-      - db-data:/var/lib/mysql
-    secrets:
-      - db_name
-      - db_user
-      - db_pass
-      - db_root_pass
-    networks:
-      - inception_network
+
   ftp:
     build: requirements/bonus/ftp/.
     container_name: ftp
@@ -61,53 +64,55 @@ services:
       - wp-data:/var/www/html
     ports:
       - "21:21"
-      # - "21100-21110:21100-21110"
       - "40000-40010:40000-40010"
     networks:
       - inception_network
     restart: always
-  # redis:
-  #   build: requirements/bonus/redis/.
-  #   container_name: redis
-  #   depends_on:
-  #     - wordpress
-  #   ports:
-  #     - "6379:6379"
-  #   networks:
-  #     - inception_network
-  #   restart: always
-  # adminer:
-  #   build: ./requirements/bonus/adminer/.
-  #   container_name: adminer
-  #   ports:
-  #     - "8080:8080"
-  #   restart: always
-  #   networks:
-  #     - inception_network
-  # static_cats:
-  #   build: ./requirements/bonus/static/.
-  #   container_name: static_cats
-  #   ports:
-  #     - "8443:443"
-  #   networks:
-  #     - inception_network
-  # cadvisor:
-  #   build:
-  #     context: ./requirements/bonus/cadvisor
-  #   container_name: cadvisor
-  #   volumes:
-  #     - /:/rootfs:ro
-  #     - /var/run:/var/run:rw
-  #     - /sys:/sys:ro
-  #     - /var/lib/docker/:/var/lib/docker:ro
-  #     - /dev/disk/:/dev/disk:ro
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   ports:
-  #     - "8081:8080"  # Map container's 8080 to host's 8081
-  #   restart: always
-  #   networks:
-  #     - inception_network
-
+  redis:
+    build: requirements/bonus/redis/.
+    container_name: redis
+    depends_on:
+      - wordpress
+    ports:
+      - "6379:6379"
+    networks:
+      - inception_network
+    restart: always
+  adminer:
+    build: ./requirements/bonus/adminer/.
+    container_name: adminer
+    depends_on:
+      - mariadb
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - inception_network
+  static_cats:
+    build: ./requirements/bonus/static/.
+    container_name: static_cats
+    environment:
+      - STATIC_DOMAIN_NAME=${DOMAIN_NAME}
+    ports:
+      - "8443:443"
+    networks:
+      - inception_network
+  cadvisor:
+    build:
+      context: ./requirements/bonus/cadvisor
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8081:8080"
+    restart: always
+    networks:
+      - inception_network
 
 volumes:
   db-data:
@@ -148,3 +153,9 @@ secrets:
     file: ../secrets/ftp_user.txt
   ftp_pass:
     file: ../secrets/ftp_pass.txt
+  regular_user:
+    file: ../secrets/regular_user.txt
+  regular_pass:
+    file: ../secrets/regular_pass.txt
+  regular_email:
+    file: ../secrets/regular_email.txt

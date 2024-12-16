@@ -68,8 +68,7 @@ server {
 		try_files $uri $uri/ =404;
 	}
 
-	# pass PHP scripts to FastCGI server
-	#
+	# Pass PHP scripts to FastCGI server
 	location ~ \.php$ {
 		include snippets/fastcgi-php.conf;
 	#
@@ -79,20 +78,12 @@ server {
 		fastcgi_pass wp-php:9000;
 	}
 
-	# location /adminer {
-	# 	proxy_pass http://adminer:8080;
-	# 	proxy_set_header Host $host;
-	# 	proxy_set_header X-Real-IP $remote_addr;
-	# 	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-	# }
-
-	# THIS IS CORRECT! UNCOMMENT THIS!
-	# location /adminer {
-	# 	proxy_pass http://adminer:8080/; # Note the trailing slash
-	# 	proxy_set_header Host $host;
-	# 	proxy_set_header X-Real-IP $remote_addr;
-	# 	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-	# }
+	location /adminer {
+		proxy_pass http://adminer:8080/; # Note the trailing slash
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	}
 
 	# deny access to .htaccess files, if Apache's document root
 	# concurs with nginx's one
@@ -101,44 +92,6 @@ server {
 	#	deny all;
 	#}
 }
-
-	# Cats website
-# server {
-# 	listen 443 ssl;
-# 	listen [::]:443 ssl;
-# 	server_name cats.mvolkman.42.fr;
-
-# 	ssl_certificate /etc/nginx/ssl/nginx.crt;
-# 	ssl_certificate_key /etc/nginx/ssl/nginx.key;
-# 	ssl_protocols TLSv1.2 TLSv1.3;
-# 	ssl_prefer_server_ciphers on;
-
-# 	root /var/www/cats;
-# 	index index.html;
-
-# 	location / {
-# 		try_files $uri $uri/ =404;
-# 	}
-# }
-
-# server {
-# 	listen 443 ssl;
-# 	listen [::]:443 ssl;
-# 	server_name cats.mvolkman.42.fr;
-
-# 	ssl_certificate /etc/nginx/ssl/nginx.crt;
-# 	ssl_certificate_key /etc/nginx/ssl/nginx.key;
-# 	ssl_protocols TLSv1.2 TLSv1.3;
-# 	ssl_prefer_server_ciphers on;
-
-# 	root /var/www/cats; # Ensure this points to the correct volume
-# 	index index.html;
-
-# 	location / {
-# 		try_files $uri $uri/ =404;
-# 	}
-# }
-
 
 # Virtual Host configuration for example.com
 #

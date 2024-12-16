@@ -10,7 +10,11 @@ DB_USER=$(cat /run/secrets/db_user)
 DB_PASS=$(cat /run/secrets/db_pass)
 DB_ROOT_PASS=$(cat /run/secrets/db_root_pass)  # Assuming root password is stored as a secret
 
-echo "DB_NAME=${DB_NAME}, DB_USER=${DB_USER}, DB_PASS=${DB_PASS}, DB_ROOT_PASS=${DB_ROOT_PASS}"
+# Check if marker file exists
+if [ -f /var/lib/mysql/.initialized ]; then
+	echo "Database already initialized. Skipping setup."
+	exec mysqld --user=mysql --console
+fi
 
 # Start MariaDB in the background
 mysqld --user=mysql --skip-networking &
@@ -41,6 +45,8 @@ EOF
 
     echo "Database '${DB_NAME}' and user '${DB_USER}' created successfully."
 fi
+
+touch /var/lib/mysql/.initialized
 
 # Stop the temporary MariaDB instance
 mysqladmin -u root -p${DB_ROOT_PASS} shutdown

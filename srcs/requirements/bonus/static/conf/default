@@ -21,7 +21,7 @@ server {
 	listen 80 default_server;
 	listen [::]:80 default_server;
 
-	server_name cat.42.fr;
+	server_name ${DOMAIN_NAME};
 
 	# Redirect all HTTP requests to HTTPS
 	return 301 https://$host$request_uri;
@@ -30,6 +30,11 @@ server {
 # Default server configuration
 #
 server {
+	# listen 80 default_server;
+	# listen [::]:80 default_server;
+
+	# SSL configuration
+	#
 	listen 443 ssl default_server;
 	listen [::]:443 ssl default_server;
 
@@ -38,11 +43,6 @@ server {
 
 	ssl_protocols TLSv1.2 TLSv1.3;
 	ssl_prefer_server_ciphers on;
-
-	# SSL configuration
-	#
-	# listen 443 ssl default_server;
-	# listen [::]:443 ssl default_server;
 	#
 	# Note: You should disable gzip for SSL traffic.
 	# See: https://bugs.debian.org/773332
@@ -60,7 +60,7 @@ server {
 	# Add index.php to the list if you are using PHP
 	index index.html index.htm index.nginx-debian.html;
 
-	server_name _;
+	server_name ${DOMAIN_NAME};
 
 	location / {
 		# First attempt to serve request as file, then

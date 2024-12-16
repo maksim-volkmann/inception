@@ -14,15 +14,24 @@ default: build up
 # 	@echo "Directories created: $(DB_DIR), $(WP_DIR)"
 
 build:
-	# mkdir -p /home/mvolkman/data/db
-	# mkdir -p /home/mvolkman/data/wp
-	# chmod 777 /home/mvolkman/data/db
-	# chmod 777 /home/mvolkman/data/wp
+	# Check and create /home/mvolkman/data/db if it doesn't exist
+	if [ ! -d "/home/mvolkman/data/db" ]; then \
+		mkdir -p /home/mvolkman/data/db; \
+		chmod 777 /home/mvolkman/data/db; \
+	fi
+
+	# Check and create /home/mvolkman/data/wp if it doesn't exist
+	if [ ! -d "/home/mvolkman/data/wp" ]; then \
+		mkdir -p /home/mvolkman/data/wp; \
+		chmod 777 /home/mvolkman/data/wp; \
+	fi
+
+	# Navigate to srcs and build Docker containers
 	cd srcs && docker compose build
 
 up:
 	# $(MAKE) create-directories
-	cd srcs && docker compose up
+	cd srcs && docker compose up -d
 
 down:
 	cd srcs && docker compose down
