@@ -1,11 +1,16 @@
 FROM debian:stable
 
+# Install Redis
 RUN apt-get update && apt-get install -y \
 	redis \
 	&& apt-get clean
 
+# Copy conf and script to container
+COPY ./conf/redis.conf /etc/redis/redis.conf
 COPY ./tools/redis.sh .
-
-EXPOSE 6379
 RUN chmod +x redis.sh
-CMD ["./redis.sh"]
+
+# Port
+EXPOSE 6379
+
+ENTRYPOINT ["./redis.sh"]

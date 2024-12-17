@@ -12,11 +12,11 @@ ENV CADVISOR_BINARY="cadvisor-${CADVISOR_VERSION}-linux-amd64"
 ENV CADVISOR_URL="https://github.com/google/cadvisor/releases/download/${CADVISOR_VERSION}/${CADVISOR_BINARY}"
 
 # Download the cAdvisor binary using the environment variables
-RUN wget "${CADVISOR_URL}" -O /usr/local/bin/cadvisor && \
-	chmod +x /usr/local/bin/cadvisor
+RUN wget "${CADVISOR_URL}" -O /cadvisor && \
+	chmod +x /cadvisor
 
 # Port
 EXPOSE 8080
 
 # Run
-CMD ["/usr/local/bin/cadvisor"]
+CMD ["/cadvisor"]
