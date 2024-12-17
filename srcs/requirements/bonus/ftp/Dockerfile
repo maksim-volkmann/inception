@@ -1,7 +1,10 @@
 FROM debian:stable
 
 # Install vsftpd
-RUN apt update && apt install -y vsftpd && apt clean
+RUN apt update && apt install -y \
+	vsftpd \
+	&& apt-get clean
+
 
 # Copy vsftpd configuration
 COPY conf/vsftpd.conf /etc/vsftpd.conf

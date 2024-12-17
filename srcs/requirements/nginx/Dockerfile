@@ -1,6 +1,11 @@
 FROM debian:stable
 
-RUN apt update && apt install -y nginx openssl curl && apt clean
+RUN apt update && apt install -y \
+	nginx \
+	openssl \
+	curl \
+	&& apt-get clean
+
 
 # Generate SSL
 RUN mkdir -p /etc/nginx/ssl && \

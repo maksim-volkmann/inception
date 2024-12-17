@@ -1,67 +1,53 @@
-## Inception Makefile
-
-# Define variables for directories
-# DATA_DIR := /home/mvolkman/data
-# DB_DIR := $(DATA_DIR)/db
-# WP_DIR := $(DATA_DIR)/wp
-
+# Default target
 default: build up
 
-# create-directories:
-# 	@echo "Creating required directories..."
-# 	mkdir -p $(DB_DIR)
-# 	mkdir -p $(WP_DIR)
-# 	@echo "Directories created: $(DB_DIR), $(WP_DIR)"
-
+# Build Docker images and create necessary directories
 build:
-	# Check and create /home/mvolkman/data/db if it doesn't exist
-	if [ ! -d "/home/mvolkman/data/db" ]; then \
-		mkdir -p /home/mvolkman/data/db; \
-		chmod 777 /home/mvolkman/data/db; \
+	@echo "Checking and creating data directories if needed..."
+	@if [ ! -d "/home/$(USER)/data/db" ]; then \
+		echo "Creating /home/$(USER)/data/db"; \
+		mkdir -p /home/$(USER)/data/db; \
+		chmod 777 /home/$(USER)/data/db; \
 	fi
-
-	# Check and create /home/mvolkman/data/wp if it doesn't exist
-	if [ ! -d "/home/mvolkman/data/wp" ]; then \
-		mkdir -p /home/mvolkman/data/wp; \
-		chmod 777 /home/mvolkman/data/wp; \
+	@if [ ! -d "/home/$(USER)/data/wp" ]; then \
+		echo "Creating /home/$(USER)/data/wp"; \
+		mkdir -p /home/$(USER)/data/wp; \
+		chmod 777 /home/$(USER)/data/wp; \
 	fi
+	@echo "Building Docker images..."
+	@cd srcs && docker compose build
 
-	# Navigate to srcs and build Docker containers
-	cd srcs && docker compose build
-
+# Start containers
 up:
-	# $(MAKE) create-directories
-	cd srcs && docker compose up -d
+	@echo "Starting Docker containers..."
+	@cd srcs && docker compose up -d
 
+# Stop containers
+stop:
+	@echo "Stopping Docker containers..."
+	@cd srcs && docker compose stop
+
+# delete containers
 down:
-	cd srcs && docker compose down
+	@echo "Stopping Docker containers..."
+	@cd srcs && docker compose down
 
-re: fclean build up
+# Deletes everything
+fclean: down
+	@echo "Cleaning up containers, images, volumes, and data directory..."
 
-clean:
-	# Stop all running containers if any exist
-	if [ -n "$$(docker ps -q)" ]; then \
-		docker stop $$(docker ps -q); \
-	fi
+	@docker ps -aq | xargs -r docker rm -f >/dev/null 2>&1
+	@docker images -q | xargs -r docker rmi -f >/dev/null 2>&1
+	@docker volume ls -q | xargs -r docker volume rm -f >/dev/null 2>&1
 
-	# Remove all containers if any exist
-	if [ -n "$$(docker ps -aq)" ]; then \
-		docker rm $$(docker ps -aq); \
-	fi
-
-	# Remove specific Docker volumes
-	docker volume rm db-volume wp-volume || true
-
-
-cclean:
-	docker system prune -a --volumes -f
-
-fclean:
-	# $(MAKE) clean
-	if [ -d "/home/$(USER)/data" ]; then \
-		sudo rm -rf /home/$(USER)/data; \
+	@if [ -d "/home/$(USER)/data" ]; then \
+		sudo rm -rf /home/$(USER)/data >/dev/null 2>&1; \
 		echo "Removed /home/$(USER)/data"; \
 	else \
-		echo "Directory /home/$(USER)/data is empty"; \
+		echo "Directory /home/$(USER)/data does not exist."; \
 	fi
 
+	@echo "fclean completed successfully."
+
+
+.PHONY: default build up down clean
