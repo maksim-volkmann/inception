@@ -51,7 +51,6 @@ services:
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
     restart: always
-
   ftp:
     build: requirements/bonus/ftp/.
     container_name: ftp
